@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  ms-reportes:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=ms-reportes-secret-sprint4
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=biteco_reports
+      - JWT_SECRET=biteco-secret-sprint4
+      - PROJECTS_SERVICE_URL=
+      - ALERTS_SERVICE_URL=
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
