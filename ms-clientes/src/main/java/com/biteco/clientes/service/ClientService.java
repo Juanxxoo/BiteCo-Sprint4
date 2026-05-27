@@ -56,7 +56,7 @@ public class ClientService {
         body.put("report_id", reportId);
         body.put("project_id", projectId);
         body.put("field", field);
-        body.put("new_value", newValue);
+        body.put("new_value", newValue instanceof String ? newValue : ((Number) newValue).intValue());
  
         Map<String, Object> result = new HashMap<>();
  
