@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  postgres-proyectos:
+    image: postgres:15
+    container_name: postgres-proyectos
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: biteco_proyectos
+    volumes:
+      - postgres_proyectos_data:/var/lib/postgresql/data
+
+  ms-proyectos:
+    build: ./ms-proyectos
+    container_name: ms-proyectos
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      POSTGRES_HOST: postgres-proyectos
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: biteco_proyectos
+    depends_on:
+      - postgres-proyectos
+
+  mongo-reportes:
+    image: mongo:7
+    container_name: mongo-reportes
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_reportes_data:/data/db
+
+  ms-reportes:
+    build: ./ms-reportes
+    container_name: ms-reportes
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_HOST: mongo-reportes
+      MONGO_PORT: 27017
+      MONGO_DB: biteco_reports
+      PROJECTS_SERVICE_URL: http://ms-proyectos:8080
+      ALERTS_SERVICE_URL: http://ms-alertas:3000
+    depends_on:
+      - mongo-reportes
+      - ms-proyectos
+
+  mongo-alertas:
+    image: mongo:7
+    container_name: mongo-alertas
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_alertas_data:/data/db
+
+  ms-alertas:
+    build: ./ms-alertas
+    container_name: ms-alertas
+    ports:
+      - "8001:3000"
+    environment:
+      MONGO_HOST: mongo-alertas
+      MONGO_PORT: 27017
+      MONGO_DB: biteco_alerts
+    depends_on:
+      - mongo-alertas
+
+volumes:
+  postgres_proyectos_data:
+  mongo_reportes_data:
+  mongo_alertas_data:
+
+
+ 

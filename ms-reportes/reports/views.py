@@ -3,6 +3,8 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+import os
+import requests
 
 from reports.logic.report_logic import (
     get_current_consumption,
@@ -61,6 +63,7 @@ def compare_consumption(request):
     return JsonResponse({
         "project_id": project_id,
         "project_name": project["name"],
+        "project_source": project.get("source", "unknown"),
         "current_month": current["month"],
         "current_consumption": current_cost,
         "last_month": last_month["month"],
@@ -101,6 +104,40 @@ def integrity_check(request):
     alert_generated = False
 
     if tampered:
+        alerts_service_url = os.getenv("ALERTS_SERVICE_URL", "")
+
+        if alerts_service_url:
+            payload_alert = {
+                "report_id": report_id,
+                "project_id": project_id,
+                "client_id": body.get("client_id", "client-001"),
+                "detail": "Hash mismatch detectado"
+            }
+
+            payload_audit = {
+                "report_id": report_id,
+                "project_id": project_id,
+                "client_id": body.get("client_id", "client-001"),
+                "action": "tampering_detected",
+                "detail": "Modificación no autorizada detectada"
+            }
+
+            alert_response = requests.post(
+                f"{alerts_service_url}/alerts/security/",
+                json=payload_alert,
+                timeout=0.3
+            )
+
+            audit_response = requests.post(
+                f"{alerts_service_url}/alerts/audit-log/",
+                json=payload_audit,
+                timeout=0.3
+            )
+
+            alert_generated = alert_response.status_code == 200
+            audit_created = audit_response.status_code == 200
+
+    else:
         save_audit_log(report_id, project_id, "Hash mismatch detectado")
         save_security_alert(report_id, project_id)
         audit_created = True

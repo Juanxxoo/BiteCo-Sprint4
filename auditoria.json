@@ -1,0 +1,7 @@
+{
+  "report_id": "report-2026-05",
+  "project_id": "project-001",
+  "client_id": "client-001",
+  "action": "tampering_detected",
+  "detail": "Prueba manual de auditoria"
+}

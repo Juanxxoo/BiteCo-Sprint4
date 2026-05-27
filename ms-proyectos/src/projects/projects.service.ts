@@ -37,7 +37,7 @@ export class ProjectsService implements OnModuleInit {
 
     // Insertar proyectos
     const projects = [
-      { project_id: 'project-001', name: 'Proyecto Alpha', client_id: 'client-001', current_consumption: 1450 },
+      { project_id: 'project-001', name: 'Proyecto Alpha PostgreSQL', client_id: 'client-001', current_consumption: 1450 },
       { project_id: 'project-002', name: 'Proyecto Beta',  client_id: 'client-002', current_consumption: 980  },
       { project_id: 'project-003', name: 'Proyecto Gamma', client_id: 'client-001', current_consumption: 720  },
     ];

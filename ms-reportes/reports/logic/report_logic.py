@@ -1,19 +1,39 @@
 from config.mongo import get_db
 import hashlib
 import json
+import os
+import requests
 
 
 # --- Mock de proyectos (reemplazar por llamada HTTP a ms-proyectos cuando exista) ---
 
 PROJECTS_MOCK = {
-    "project-001": {"project_id": "project-001", "name": "Proyecto Alpha", "client_id": "client-001"},
-    "project-002": {"project_id": "project-002", "name": "Proyecto Beta",  "client_id": "client-002"},
-    "project-003": {"project_id": "project-003", "name": "Proyecto Gamma", "client_id": "client-001"},
+    "project-001": {"project_id": "project-001", "name": "Proyecto Alpha MOCK", "client_id": "client-001"},
+    "project-002": {"project_id": "project-002", "name": "Proyecto Beta MOCK",  "client_id": "client-002"},
+    "project-003": {"project_id": "project-003", "name": "Proyecto Gamma MOCK", "client_id": "client-001"},
 }
 
 
 def get_project(project_id):
-    return PROJECTS_MOCK.get(project_id)
+    projects_service_url = os.getenv("PROJECTS_SERVICE_URL", "")
+
+    if projects_service_url:
+        try:
+            response = requests.get(
+                f"{projects_service_url}/projects/{project_id}",
+                timeout=0.3
+            )
+            if response.status_code == 200:
+                project = response.json()
+                project["source"] = "ms-proyectos-postgresql"
+                return project
+        except Exception:
+            pass
+
+    project = PROJECTS_MOCK.get(project_id)
+    if project:
+        project["source"] = "mock"
+    return project
 
 
 # --- Seed data: inserta reportes de prueba si la colección está vacía ---
