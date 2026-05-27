@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ms-clientes:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=biteco_clientes
+      - REPORTS_SERVICE_URL=http://ms-reportes:8000
+      - PROJECTS_SERVICE_URL=http://ms-proyectos:8080
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=biteco_clientes
+    volumes:
+      - postgres_clientes_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_clientes_data:
